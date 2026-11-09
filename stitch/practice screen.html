@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>WordMaster Practice - Neon Matching</title>
+<!-- Tailwind CSS CDN with plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration for Custom Neon Theme -->
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            neonBlue: '#00f2ff',
+            neonPurple: '#bc13fe',
+            neonPink: '#ff00ff',
+            darkVoid: '#0a0a12',
+            cyberGray: '#1a1a2e'
+          },
+          boxShadow: {
+            'neon-blue': '0 0 10px #00f2ff, 0 0 20px #00f2ff',
+            'neon-purple': '0 0 10px #bc13fe, 0 0 20px #bc13fe',
+          }
+        }
+      }
+    }
+  </script>
+<!-- Custom Styles for Specific Animations and Layouts -->
+<style data-purpose="gaming-ui-effects">
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+    .glow-pulse {
+      animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    .neon-border {
+      border: 1px solid #00f2ff;
+      box-shadow: inset 0 0 5px #00f2ff, 0 0 5px #00f2ff;
+    }
+    .selected-card {
+      border-color: #bc13fe;
+      box-shadow: inset 0 0 10px #bc13fe, 0 0 10px #bc13fe;
+      transform: scale(1.02);
+    }
+    .matched-card {
+      opacity: 0.5;
+      border-color: #4ade80;
+      box-shadow: none;
+      pointer-events: none;
+    }
+    body {
+      background-color: #0a0a12;
+      background-image: 
+        radial-gradient(circle at 50% 50%, #1a1a2e 0%, #0a0a12 100%);
+      overflow: hidden;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+  </style>
+</head>
+<body class="text-white min-h-screen flex flex-col">
+<!-- BEGIN: Header & Progress -->
+<header class="p-4 flex justify-between items-center bg-cyberGray/50 border-b border-neonBlue/30">
+<div class="flex flex-col">
+<h1 class="text-neonBlue font-bold tracking-widest text-lg uppercase italic">WordMaster</h1>
+<span class="text-xs text-neonPurple font-mono">LEVEL: ELEMENTARY</span>
+</div>
+<div class="text-right">
+<div class="text-xs uppercase text-gray-400 mb-1">Progress</div>
+<div class="flex items-center gap-2">
+<span class="text-neonBlue font-bold">Round 1/5</span>
+<div class="w-24 h-2 bg-gray-800 rounded-full overflow-hidden border border-neonBlue/20">
+<div class="w-1/5 h-full bg-neonBlue shadow-neon-blue"></div>
+</div>
+</div>
+</div>
+</header>
+<!-- END: Header & Progress -->
+<!-- BEGIN: Game Arena -->
+<main class="flex-grow flex flex-col p-4 relative" data-purpose="matching-container">
+<!-- Background Grid Effect -->
+<div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: linear-gradient(#00f2ff 1px, transparent 1px), linear-gradient(90deg, #00f2ff 1px, transparent 1px); background-size: 40px 40px;"></div>
+<div class="flex justify-between gap-4 h-full items-center relative z-10">
+<!-- BEGIN: Hebrew Column (Left) -->
+<section class="flex flex-col gap-4 w-1/2" data-purpose="hebrew-words">
+<!-- Word Card 1 -->
+<button class="neon-border bg-cyberGray/80 p-4 rounded-lg text-center transition-all duration-300 active:scale-95" data-id="1">
+<span class="text-xl font-bold block">בית</span>
+</button>
+<!-- Word Card 2 (Simulating selection) -->
+<button class="neon-border selected-card bg-cyberGray/80 p-4 rounded-lg text-center transition-all duration-300" data-id="2">
+<span class="text-xl font-bold block">כלב</span>
+</button>
+<!-- Word Card 3 -->
+<button class="neon-border bg-cyberGray/80 p-4 rounded-lg text-center transition-all duration-300" data-id="3">
+<span class="text-xl font-bold block">בית ספר</span>
+</button>
+<!-- Word Card 4 -->
+<button class="neon-border bg-cyberGray/80 p-4 rounded-lg text-center transition-all duration-300" data-id="4">
+<span class="text-xl font-bold block">תפוח</span>
+</button>
+<!-- Word Card 5 -->
+<button class="neon-border bg-cyberGray/80 p-4 rounded-lg text-center transition-all duration-300" data-id="5">
+<span class="text-xl font-bold block">שמש</span>
+</button>
+</section>
+<!-- END: Hebrew Column -->
+<!-- Canvas for connecting lines -->
+<canvas class="absolute inset-0 pointer-events-none w-full h-full" data-purpose="neon-lines" id="connection-canvas"></canvas>
+<!-- BEGIN: English Column (Right) -->
+<section class="flex flex-col gap-4 w-1/2" data-purpose="english-words">
+<!-- Word Card 1 -->
+<button class="neon-border bg-cyberGray/80 p-4 rounded-lg text-center transition-all duration-300" data-id="A">
+<span class="text-lg font-bold block uppercase tracking-wider">Dog</span>
+</button>
+<!-- Word Card 2 -->
+<button class="neon-border bg-cyberGray/80 p-4 rounded-lg text-center transition-all duration-300" data-id="B">
+<span class="text-lg font-bold block uppercase tracking-wider">Sun</span>
+</button>
+<!-- Word Card 3 -->
+<button class="neon-border bg-cyberGray/80 p-4 rounded-lg text-center transition-all duration-300" data-id="C">
+<span class="text-lg font-bold block uppercase tracking-wider">School</span>
+</button>
+<!-- Word Card 4 -->
+<button class="neon-border bg-cyberGray/80 p-4 rounded-lg text-center transition-all duration-300" data-id="D">
+<span class="text-lg font-bold block uppercase tracking-wider">Apple</span>
+</button>
+<!-- Word Card 5 -->
+<button class="neon-border bg-cyberGray/80 p-4 rounded-lg text-center transition-all duration-300" data-id="E">
+<span class="text-lg font-bold block uppercase tracking-wider">House</span>
+</button>
+</section>
+<!-- END: English Column -->
+</div>
+</main>
+<!-- END: Game Arena -->
+<!-- BEGIN: Footer Navigation -->
+<footer class="p-6 bg-cyberGray/80 border-t border-neonPurple/30 flex flex-col items-center gap-4">
+<div class="w-full flex justify-center">
+<button class="group relative px-12 py-3 bg-transparent overflow-hidden rounded-full transition-all duration-300 hover:scale-105 active:scale-95" id="next-button">
+<!-- Neon Glow Background -->
+<div class="absolute inset-0 bg-gradient-to-r from-neonBlue to-neonPurple opacity-80 group-hover:opacity-100 transition-opacity"></div>
+<!-- Inner Border -->
+<div class="absolute inset-[2px] bg-darkVoid rounded-full"></div>
+<!-- Button Text -->
+<span class="relative z-10 text-neonBlue font-black tracking-[0.2em] uppercase glow-pulse">Next Round</span>
+</button>
+</div>
+<p class="text-[10px] text-gray-500 uppercase tracking-widest">Connect all pairs to unlock Next</p>
+</footer>
+<!-- END: Footer Navigation -->
+<!-- BEGIN: Scripting for UI Visuals -->
+<script data-purpose="canvas-setup">
+    const canvas = document.getElementById('connection-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = canvas.clientWidth;
+      canvas.height = canvas.clientHeight;
+      drawSampleLine();
+    }
+
+    // This illustrates a connecting neon line for visual mock-up
+    function drawSampleLine() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Example line from Hebrew "כלב" (approx center) to English "Dog"
+      const startX = canvas.width * 0.45;
+      const startY = canvas.height * 0.38; // Relative to the 2nd item
+      const endX = canvas.width * 0.55;
+      const endY = canvas.height * 0.18; // Relative to the 1st item
+
+      ctx.beginPath();
+      ctx.moveTo(startX, startY);
+      ctx.lineTo(endX, endY);
+      
+      // Neon Glow styling
+      ctx.strokeStyle = '#bc13fe';
+      ctx.lineWidth = 3;
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = '#bc13fe';
+      ctx.stroke();
+      
+      // Core white line
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1;
+      ctx.shadowBlur = 0;
+      ctx.stroke();
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    setTimeout(resizeCanvas, 100);
+  </script>
+<script data-purpose="interaction-simulation">
+    // Simple visual interaction for demo
+    document.querySelectorAll('button[data-id]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Handle selection state visually
+        if(btn.closest('section').dataset.purpose === 'hebrew-words') {
+          document.querySelectorAll('[data-purpose="hebrew-words"] button').forEach(b => b.classList.remove('selected-card'));
+        } else {
+          document.querySelectorAll('[data-purpose="english-words"] button').forEach(b => b.classList.remove('selected-card'));
+        }
+        btn.classList.add('selected-card');
+      });
+    });
+  </script>
+<!-- END: Scripting -->
+</body></html>
